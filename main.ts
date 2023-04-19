@@ -4,7 +4,7 @@ namespace SpriteKind {
 }
 controller.player2.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
     if (numero_tiros_p2 > 0) {
-        projectile = sprites.createProjectileFromSprite(img`
+        projectile_P2 = sprites.createProjectileFromSprite(img`
             . . . . . 3 3 b 3 3 d d 3 3 . . 
             . . . . 3 1 1 d 3 d 1 1 1 1 3 . 
             . . . 3 d 1 1 1 d 1 1 1 d 3 1 3 
@@ -32,11 +32,61 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Boss, function (sprite, othe
     statusbar.value += -2
 })
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Projectile, function (sprite, otherSprite) {
-    info.changeScoreBy(1)
+    if (otherSprite == projectile_P1) {
+        info.player1.changeScoreBy(1)
+    } else {
+        info.player2.changeScoreBy(1)
+    }
     sprites.destroy(sprite, effects.warmRadial, 200)
     sprites.destroy(otherSprite, effects.fire, 200)
 })
-info.onScore(100, function () {
+statusbars.onZero(StatusBarKind.Health, function (status) {
+    game.gameOver(true)
+})
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
+    sprites.destroy(sprite, effects.fire, 200)
+    info.changeLifeBy(-1)
+})
+controller.player1.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
+    if (numero_tiros_P1 > 0) {
+        projectile_P1 = sprites.createProjectileFromSprite(img`
+            . . . . c c c b b b b b . . . . 
+            . . c c b 4 4 4 4 4 4 b b b . . 
+            . c c 4 4 4 4 4 5 4 4 4 4 b c . 
+            . e 4 4 4 4 4 4 4 4 4 5 4 4 e . 
+            e b 4 5 4 4 5 4 4 4 4 4 4 4 b c 
+            e b 4 4 4 4 4 4 4 4 4 4 5 4 4 e 
+            e b b 4 4 4 4 4 4 4 4 4 4 4 b e 
+            . e b 4 4 4 4 4 5 4 4 4 4 b e . 
+            8 7 e e b 4 4 4 4 4 4 b e e 6 8 
+            8 7 2 e e e e e e e e e e 2 7 8 
+            e 6 6 2 2 2 2 2 2 2 2 2 2 6 c e 
+            e c 6 7 6 6 7 7 7 6 6 7 6 c c e 
+            e b e 8 8 c c 8 8 c c c 8 e b e 
+            e e b e c c e e e e e c e b e e 
+            . e e b b 4 4 4 4 4 4 4 4 e e . 
+            . . . c c c c c e e e e e . . . 
+            `, frifariano, 50, 0)
+        numero_tiros_P1 += -1
+        textSprite_P1.setText(convertToText(numero_tiros_P1))
+    }
+})
+sprites.onOverlap(SpriteKind.tirosboss, SpriteKind.Player, function (sprite, otherSprite) {
+    sprites.destroy(sprite, effects.trail, 500)
+    info.changeLifeBy(-1)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.warmRadial, 200)
+    if (sprite == frifariano) {
+        numero_tiros_P1 += 5
+        textSprite_P1.setText(convertToText(numero_tiros_P1))
+    }
+    if (sprite == frifariana) {
+        numero_tiros_p2 += 5
+        textSprite_P2.setText(convertToText(numero_tiros_p2))
+    }
+})
+info.onScore(20, function () {
     if (nivel != "mega zombi") {
         nivel = "mega zombi"
         scroller.scrollBackgroundWithSpeed(0, 0)
@@ -249,58 +299,13 @@ info.onScore(100, function () {
         statusbar.attachToSprite(mega_zombie)
     }
 })
-statusbars.onZero(StatusBarKind.Health, function (status) {
-    game.gameOver(true)
-})
-sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
-    sprites.destroy(sprite, effects.fire, 200)
-    info.changeLifeBy(-1)
-})
-controller.player1.onButtonEvent(ControllerButton.A, ControllerButtonEvent.Pressed, function () {
-    if (numero_tiros_P1 > 0) {
-        projectile = sprites.createProjectileFromSprite(img`
-            . . . . c c c b b b b b . . . . 
-            . . c c b 4 4 4 4 4 4 b b b . . 
-            . c c 4 4 4 4 4 5 4 4 4 4 b c . 
-            . e 4 4 4 4 4 4 4 4 4 5 4 4 e . 
-            e b 4 5 4 4 5 4 4 4 4 4 4 4 b c 
-            e b 4 4 4 4 4 4 4 4 4 4 5 4 4 e 
-            e b b 4 4 4 4 4 4 4 4 4 4 4 b e 
-            . e b 4 4 4 4 4 5 4 4 4 4 b e . 
-            8 7 e e b 4 4 4 4 4 4 b e e 6 8 
-            8 7 2 e e e e e e e e e e 2 7 8 
-            e 6 6 2 2 2 2 2 2 2 2 2 2 6 c e 
-            e c 6 7 6 6 7 7 7 6 6 7 6 c c e 
-            e b e 8 8 c c 8 8 c c c 8 e b e 
-            e e b e c c e e e e e c e b e e 
-            . e e b b 4 4 4 4 4 4 4 4 e e . 
-            . . . c c c c c e e e e e . . . 
-            `, frifariano, 50, 0)
-        numero_tiros_P1 += -1
-        textSprite_P1.setText(convertToText(numero_tiros_P1))
-    }
-})
-sprites.onOverlap(SpriteKind.tirosboss, SpriteKind.Player, function (sprite, otherSprite) {
-    sprites.destroy(sprite, effects.trail, 500)
-    info.changeLifeBy(-1)
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
-    sprites.destroy(otherSprite, effects.warmRadial, 200)
-    if (sprite == frifariano) {
-        numero_tiros_P1 += 5
-        textSprite_P1.setText(convertToText(numero_tiros_P1))
-    }
-    if (sprite == frifariana) {
-        numero_tiros_p2 += 5
-        textSprite_P2.setText(convertToText(numero_tiros_p2))
-    }
-})
 let mais_tiros: Sprite = null
 let tiros_boss_sprite: Sprite = null
 let zombi: Sprite = null
 let mega_zombie: Sprite = null
+let projectile_P1: Sprite = null
 let statusbar: StatusBarSprite = null
-let projectile: Sprite = null
+let projectile_P2: Sprite = null
 let textSprite_P2: TextSprite = null
 let nivel = ""
 let textSprite_P1: TextSprite = null
@@ -494,7 +499,7 @@ textSprite_P1.setIcon(img`
     . e e b b 4 4 4 4 4 4 4 4 e e . 
     . . . c c c c c e e e e e . . . 
     `)
-textSprite_P1.setPosition(16, 23)
+textSprite_P1.setPosition(16, 25)
 nivel = convertToText(1)
 textSprite_P2 = textsprite.create(convertToText(numero_tiros_p2), 1, 3)
 textSprite_P2.setIcon(img`
@@ -515,7 +520,7 @@ textSprite_P2.setIcon(img`
     . 4 5 5 5 4 4 4 . . . . . . . . 
     . . 4 4 4 . . . . . . . . . . . 
     `)
-textSprite_P2.setPosition(148, 21)
+textSprite_P2.setPosition(145, 25)
 game.onUpdateInterval(2000, function () {
     if (nivel != "mega zombi") {
         zombi = sprites.create(img`
